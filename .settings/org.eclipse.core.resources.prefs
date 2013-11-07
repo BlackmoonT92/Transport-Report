@@ -1,4 +1,7 @@
 eclipse.preferences.version=1
-encoding//src/com/blackmoon/dto/NewsFeed.java=UTF-8
+encoding//src/com/blackmoon/custom_list_view/NewsFeedListAdapter.java=UTF-8
+encoding//src/com/blackmoon/dto/NewsFeedItem.java=UTF-8
 encoding//src/com/blackmoon/egov/MainActivity.java=UTF-8
 encoding//src/com/blackmoon/egov/MenuLeftFragment.java=UTF-8
+encoding//src/com/blackmoon/egov/NewsFeedFragment.java=UTF-8
+encoding//src/com/blackmoon/egov/NewsFeedFragmentDetail.java=UTF-8

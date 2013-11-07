@@ -9,6 +9,7 @@ package com.blackmoon.egov;
 
 public final class R {
     public static final class array {
+        public static final int chuc_nang=0x7f0c0001;
         public static final int features=0x7f0c0000;
     }
     public static final class attr {
@@ -1028,22 +1029,29 @@ containing a value of this type.
         public static final int abs__toast_frame=0x7f020070;
         public static final int avatar=0x7f020071;
         public static final int border=0x7f020072;
-        public static final int follows=0x7f020073;
-        public static final int gradient_bg=0x7f020074;
-        public static final int gradient_bg_hover=0x7f020075;
-        public static final int history=0x7f020076;
-        public static final int ic_laucher=0x7f020077;
-        public static final int image_bg=0x7f020078;
-        public static final int line=0x7f020079;
-        public static final int list_selector=0x7f02007a;
-        public static final int login=0x7f02007b;
-        public static final int logout=0x7f02007c;
-        public static final int newsfeed=0x7f02007d;
-        public static final int search=0x7f02007e;
-        public static final int shadow=0x7f02007f;
-        public static final int shadowright=0x7f020080;
+        public static final int filter=0x7f020073;
+        public static final int follows=0x7f020074;
+        public static final int gradient_bg=0x7f020075;
+        public static final int gradient_bg_hover=0x7f020076;
+        public static final int history=0x7f020077;
+        public static final int ic_laucher=0x7f020078;
+        public static final int image_bg=0x7f020079;
+        public static final int line=0x7f02007a;
+        public static final int list_selector=0x7f02007b;
+        public static final int login=0x7f02007c;
+        public static final int logout=0x7f02007d;
+        public static final int newsfeed=0x7f02007e;
+        public static final int post=0x7f02007f;
+        public static final int refresh=0x7f020080;
+        public static final int search=0x7f020081;
+        public static final int setting=0x7f020082;
+        public static final int shadow=0x7f020083;
+        public static final int shadowright=0x7f020084;
+        public static final int thum_url=0x7f020085;
+        public static final int transparent_bg=0x7f020086;
     }
     public static final class id {
+        public static final int RelativeLayout1=0x7f05004b;
         public static final int abs__action_bar=0x7f050025;
         public static final int abs__action_bar_container=0x7f050024;
         public static final int abs__action_bar_subtitle=0x7f050016;
@@ -1083,32 +1091,44 @@ containing a value of this type.
         public static final int abs__textButton=0x7f050018;
         public static final int abs__title=0x7f050020;
         public static final int abs__up=0x7f050010;
-        public static final int action_settings=0x7f050042;
-        public static final int avatar=0x7f05003c;
+        public static final int action_post=0x7f05004e;
+        public static final int action_refresh=0x7f05004f;
+        public static final int action_settings=0x7f05004d;
+        public static final int avatar=0x7f050046;
+        public static final int btnLocated=0x7f050040;
+        public static final int btnLogin=0x7f050039;
         public static final int content_frame=0x7f050037;
         public static final int disableHome=0x7f05000e;
         public static final int edit_query=0x7f05002b;
-        public static final int fragment_room=0x7f050038;
+        public static final int fragment_room=0x7f05003a;
         public static final int fullscreen=0x7f050003;
         public static final int homeAsUp=0x7f05000b;
-        public static final int layoutUser=0x7f05003b;
+        public static final int imageNewsFeedItem=0x7f05003f;
+        public static final int layoutUser=0x7f050045;
         public static final int left=0x7f050000;
-        public static final int listItem=0x7f050039;
+        public static final int listItem=0x7f05003b;
         public static final int listMode=0x7f050007;
         public static final int margin=0x7f050002;
-        public static final int menu_frame=0x7f05003a;
-        public static final int menu_frame_two=0x7f05003e;
+        public static final int menu_frame=0x7f050044;
+        public static final int menu_frame_two=0x7f050048;
         public static final int normal=0x7f050006;
         public static final int right=0x7f050001;
-        public static final int row_icon=0x7f05003f;
-        public static final int row_title=0x7f050040;
+        public static final int row_icon=0x7f050049;
+        public static final int row_title=0x7f05004a;
+        public static final int scrollView1=0x7f05003c;
         public static final int selected_view=0x7f050004;
         public static final int showCustom=0x7f05000d;
         public static final int showHome=0x7f05000a;
         public static final int showTitle=0x7f05000c;
-        public static final int slidingmenumain=0x7f050041;
+        public static final int slidingmenumain=0x7f05004c;
         public static final int tabMode=0x7f050008;
-        public static final int txtName=0x7f05003d;
+        public static final int txtDescNews=0x7f05003e;
+        public static final int txtLocated=0x7f050041;
+        public static final int txtName=0x7f050047;
+        public static final int txtNewsContent=0x7f050038;
+        public static final int txtNgayDen=0x7f050043;
+        public static final int txtSoDien=0x7f050042;
+        public static final int txtTitleNews=0x7f05003d;
         public static final int useLogo=0x7f050009;
         public static final int wrap_content=0x7f050005;
     }
@@ -1144,15 +1164,18 @@ containing a value of this type.
         public static final int fragment_history=0x7f030018;
         public static final int fragment_login=0x7f030019;
         public static final int fragment_newsfeed=0x7f03001a;
-        public static final int fragment_search=0x7f03001b;
-        public static final int fragment_user_info=0x7f03001c;
-        public static final int list=0x7f03001d;
-        public static final int menu_frame=0x7f03001e;
-        public static final int menu_frame_two=0x7f03001f;
-        public static final int row=0x7f030020;
-        public static final int sherlock_spinner_dropdown_item=0x7f030021;
-        public static final int sherlock_spinner_item=0x7f030022;
-        public static final int slidingmenumain=0x7f030023;
+        public static final int fragment_newsfeed_detail=0x7f03001b;
+        public static final int fragment_post=0x7f03001c;
+        public static final int fragment_search=0x7f03001d;
+        public static final int fragment_user_info=0x7f03001e;
+        public static final int list=0x7f03001f;
+        public static final int menu_frame=0x7f030020;
+        public static final int menu_frame_two=0x7f030021;
+        public static final int row_menu=0x7f030022;
+        public static final int row_newsfeed_item=0x7f030023;
+        public static final int sherlock_spinner_dropdown_item=0x7f030024;
+        public static final int sherlock_spinner_item=0x7f030025;
+        public static final int slidingmenumain=0x7f030026;
     }
     public static final class menu {
         public static final int main=0x7f0d0000;
@@ -1206,6 +1229,8 @@ containing a value of this type.
         public static final int login=0x7f0a0016;
         public static final int logout=0x7f0a0015;
         public static final int news_feed=0x7f0a0010;
+        public static final int news_feed_detail=0x7f0a0018;
+        public static final int post=0x7f0a0019;
         public static final int search=0x7f0a0013;
         public static final int user_info=0x7f0a0017;
     }

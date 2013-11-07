@@ -1,14 +1,20 @@
 package com.blackmoon.egov;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+
+import com.actionbarsherlock.view.MenuInflater;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
@@ -29,6 +35,7 @@ public class MainActivity extends SlidingFragmentActivity {
 	// ================================================
 
 	private Fragment mContent;
+	private SlidingMenu sm;
 
 	// ===============================================
 	// CLASS LOGICS
@@ -66,9 +73,6 @@ public class MainActivity extends SlidingFragmentActivity {
 			mContent = getSupportFragmentManager().getFragment(
 					savedInstanceState, "mContent");
 		if (mContent == null)
-			// g�?i MainScreenAcitivity nên truy�?n tham số postion vào để lựa
-			// ch�?n Fragment hiện thị
-			// MainScreenActitity(position);
 			mContent = new NewsFeedFragment();
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.content_frame, mContent).commit();
@@ -80,19 +84,13 @@ public class MainActivity extends SlidingFragmentActivity {
 		// setSlidingActionBarEnabled(false);
 
 		// customize the SlidingMenu
-		SlidingMenu sm = getSlidingMenu();
+		sm = getSlidingMenu();
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setShadowWidthRes(R.dimen.shadow_width);
 		sm.setShadowDrawable(R.drawable.shadow);
 		sm.setBehindScrollScale(0.25f);
 		sm.setFadeDegree(0.25f);
 
-		// show the explanation dialog
-		/*
-		 * if (savedInstanceState == null) new AlertDialog.Builder(this)
-		 * .setTitle(R.string.what_is_this)
-		 * .setMessage(R.string.responsive_explanation) .show();
-		 */
 		// get View of Layout_user
 
 		LinearLayout layoutUser = (LinearLayout) findViewById(R.id.layoutUser);
@@ -108,12 +106,6 @@ public class MainActivity extends SlidingFragmentActivity {
 
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		getSupportFragmentManager().putFragment(outState, "mContent", mContent);
-	}
-
 	public void switchContent(final Fragment fragment) {
 		mContent = fragment;
 		getSupportFragmentManager().beginTransaction()
@@ -127,11 +119,6 @@ public class MainActivity extends SlidingFragmentActivity {
 	}
 
 	/*
-	 * public void onBirdPressed(int pos) { Intent intent =
-	 * BirdActivity.newInstance(this, pos); startActivity(intent); }
-	 */
-
-	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -141,8 +128,35 @@ public class MainActivity extends SlidingFragmentActivity {
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			toggle();
+			return true;
+		case R.id.action_post:
+			// đăng bài
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, new PostNewsFragment())
+					.commit();
+			return true;
+		case R.id.action_refresh:
+			toggle();
+			// load lại tin mới.
+			return true;
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		android.view.MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (sm.isMenuShowing()) {
+			sm.showContent();
+		} else {
+			super.onBackPressed();
+		}
+	}
 }

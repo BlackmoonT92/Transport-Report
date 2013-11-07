@@ -6,8 +6,17 @@
         <item>Follows</item>
         <item>History</item>
         <item>Search</item>
+        <item>Setting</item>
         <item>About</item>
         <item>Logout</item>
     </string-array>
-
+ <string-array name="chuc_nang">
+        <item>Tin Mới</item>
+        <item>Theo Dõi</item>
+        <item>Lịch Sử</item>
+        <item>Tìm Kiếm</item>
+        <item>Cài Đặt</item>
+        <item>Thông Tin</item>
+        <item>Đăng Xuất</item>
+    </string-array>
 </resources>

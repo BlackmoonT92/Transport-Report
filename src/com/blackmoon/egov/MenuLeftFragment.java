@@ -35,11 +35,12 @@ public class MenuLeftFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 		// load data from database and put it into ArrayLists
 		String[] features = getResources().getStringArray(R.array.features);
+		String[] chucNang = getResources().getStringArray(R.array.chuc_nang);
 		ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
 		// set adapter
 		for (int i = 0; i < features.length; i++) {
 			HashMap<String, String> item = new HashMap<String, String>();
-			item.put(KEY_TITLE, features[i]);
+			item.put(KEY_TITLE, chucNang[i]);
 			item.put(KEY_ICON, features[i].toLowerCase());
 			data.add(item);
 		}
@@ -84,7 +85,7 @@ public class MenuLeftFragment extends ListFragment {
 	}
 
 	// the meat of switching the above framgent
-	private void switchFragment(Fragment fragment) {
+	public void switchFragment(Fragment fragment) {
 		if (getActivity() == null) {
 			return;
 		}
