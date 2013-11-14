@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+
+    <item
+        android:id="@+id/action_post"
+        android:icon="@drawable/post"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="Đăng Bài"/>
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/refresh"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="Cập Nhật"/>
+
+</menu>

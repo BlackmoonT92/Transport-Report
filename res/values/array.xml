@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="features">
+        <item>NewsFeed</item>
+        <item>Post</item>
+        <item>Follows</item>
+        <item>History</item>
+        <item>Search</item>
+        <item>Setting</item>
+        <item>About</item>
+        <item>Logout</item>
+    </string-array>
+    <string-array name="chuc_nang">
+        <item>Tin Mới</item>
+        <item>Đăng Bài</item>
+        <item>Theo Dõi</item>
+        <item>Lịch Sử</item>
+        <item>Tìm Kiếm</item>
+        <item>Cài Đặt</item>
+        <item>Thông Tin</item>
+        <item>Đăng Xuất</item>
+    </string-array>
+    <string-array name="city">
+        <item>Chọn Khu Vực</item>
+        <item>Ho_Chi_Minh</item>
+        <item>Binh_Duong</item>
+        
+    </string-array>
+    <string-array name="Binh_Duong">
+        <item>Thủ Dầu Một</item>
+        <item>Bến Cát</item>
+        <item>Tân Uyên</item>
+        <item>Thuận An</item>
+        <item>Dĩ An</item>
+        <item>Phú Giáo</item>
+        <item>Dầu Tiếng</item>
+    </string-array>
+    <string-array name="Ho_Chi_Minh">
+        <item>Quận 1</item>
+        <item>Quận 2</item>
+        <item>Quận 3</item>
+        <item>Quận 4</item>
+        <item>Quận 5</item>
+        <item>Quận 6</item>
+        <item>Quận 7</item>
+        <item>Quận 8</item>
+        <item>Quận 9</item>
+        <item>Quận 10</item>
+        <item>Quận 11</item>
+        <item>Quận 12</item>
+        <item>Quận Gò Vấp</item>
+        <item>Quận Tân Bình</item>
+        <item>Quận Tân Phú</item>
+        <item>Quận Bình Thạnh</item>
+        <item>Quận Phú Nhuận</item>
+        <item>Quận Thủ Đức</item>
+        <item>Quận Bình Tân</item>
+        <item>Huyện Bình Chánh</item>
+        <item>Huyện Cần Giờ</item>
+        <item>Huyện Củ Chi</item>
+        <item>Huyện Hóc Môn</item>
+        <item>Huyện Nhà Bè</item>
+    </string-array>
+
+</resources>
