@@ -1,0 +1,123 @@
+package royalknight.mobilehackathon.transportreport.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+
+import royalknight.mobilehackathon.transportreport.other.CName;
+import royalknight.mobilehackathon.transportreport.other.ToJSON;
+
+/**
+ * @author Nguyen Van Sinh
+ * @Time 11:00:00 14/11/2013
+ */
+public class DAOUser {
+
+	private Connection g_conn = null;
+
+	/**
+	 * @param name
+	 *            - name student
+	 * @return - json array of the results from the database
+	 * @throws Exception
+	 */
+
+	public DAOUser() {
+		
+		g_conn = MySQLHelper.getConnection();
+	}
+
+	/**
+	 * @author Nguyen Van Sinh
+	 * @return boolean
+	 * @param JSONObject
+	 *            user
+	 */
+	public boolean insertUser(JSONObject user) throws Exception {
+
+		PreparedStatement m_query_statement = null;
+		String strInsert = "";
+		strInsert += "INSERT INTO " + CName.transportreport.trim() + "."
+				+ CName.user.trim() + "(";
+		strInsert += CName.user_name.trim() + ",";
+		strInsert += CName.user_password.trim() + ",";
+		strInsert += CName.user_name_people.trim() + ",";
+		strInsert += CName.user_avatar_link.trim() + ",";
+		strInsert += CName.user_date_birth.trim() + ",";
+		strInsert += CName.user_cmnd.trim() + ",";
+		strInsert += CName.user_email.trim() + ",";
+		strInsert += CName.user_phone.trim() + ",";
+		strInsert += CName.user_fb_id.trim() + ",";
+		strInsert += CName.user_gg_id.trim() + ",";
+		strInsert += CName.district_id.trim() + ") VALUES('";
+		strInsert += "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+		try {
+
+			m_query_statement = g_conn.prepareStatement(strInsert);
+			m_query_statement.setString(1, user.getString(CName.user_name)
+					.toString());
+			m_query_statement.setString(2, user.getString(CName.user_password)
+					.toString());
+			m_query_statement.setString(3,
+					user.getString(CName.user_name_people).toString());
+			m_query_statement.setString(4,
+					user.getString(CName.user_avatar_link).toString());
+			m_query_statement.setDate(5,
+					new java.sql.Date(user.getLong(CName.user_date_birth)));
+			m_query_statement.setString(6, user.getString(CName.user_cmnd)
+					.toString());
+			m_query_statement.setString(7, user.getString(CName.user_email)
+					.toString());
+			m_query_statement.setString(8, user.getString(CName.user_phone)
+					.toString());
+			m_query_statement.setString(9, user.getString(CName.user_fb_id)
+					.toString());
+			m_query_statement.setString(10, user.getString(CName.user_gg_id)
+					.toString());
+			m_query_statement.setInt(11, user.getInt(CName.district_id));
+			
+			if (m_query_statement.executeUpdate() <= 0){
+				m_query_statement.close();
+				return false;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public JSONArray searchUserName(String inName) throws Exception {
+
+		PreparedStatement m_query_statement = null;
+		ToJSON converter = new ToJSON();
+		JSONArray mJSONArray = new JSONArray();
+
+		try {
+
+			m_query_statement = g_conn
+					.prepareStatement("SELECT * FROM transportreport.user" 
+							+ "WHERE UPPER(" + CName.user_name.trim() +") = ? ");
+			m_query_statement.setString(1, inName.toUpperCase());		
+			ResultSet rs = m_query_statement.executeQuery();
+			mJSONArray = converter.toJSONArray(rs);
+
+			m_query_statement.close(); // close connection
+		} catch (SQLException sqlError) {
+			sqlError.printStackTrace();
+			return mJSONArray;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return mJSONArray;
+		}
+		return mJSONArray;
+
+	}
+
+	//public JSONArray searchUser
+}

@@ -3,6 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Chức năng chưa phát triển"
+        android:textAppearance="?android:attr/textAppearanceLarge" 
+        android:gravity="center"/>
 
 </LinearLayout>

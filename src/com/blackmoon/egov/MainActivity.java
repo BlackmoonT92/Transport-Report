@@ -2,10 +2,13 @@ package com.blackmoon.egov;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,22 +21,14 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blackmoon.dto.JSONNewsFeedList;
 import com.blackmoon.features.MyInternet;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
-/**
- * This activity is an example of a responsive Android UI. On phones, the
- * SlidingMenu will be enabled only in portrait mode. In landscape mode, it will
- * present itself as a dual pane layout. On tablets, it will will do the same
- * general thing. In portrait mode, it will enable the SlidingMenu, and in
- * landscape mode, it will be a dual pane layout.
- * 
- * @author jeremy
- * 
- */
 public class MainActivity extends SlidingFragmentActivity implements
 		android.content.DialogInterface.OnClickListener {
 
@@ -45,6 +40,9 @@ public class MainActivity extends SlidingFragmentActivity implements
 	private SlidingMenu sm;
 	private FragmentManager fm;
 	private MyInternet mInternet;
+
+	private ProgressDialog progressDialog;
+
 	// ================================================
 	// CLASS FUNCTIONS BASIC
 	// ================================================
@@ -55,10 +53,10 @@ public class MainActivity extends SlidingFragmentActivity implements
 		setTitle(R.string.app_name);
 		Config.activity = this;
 		setContentView(R.layout.content_frame);
-		
-		
-	    
-		
+		// load data from local
+
+		new reloadDataFromLocal().execute();
+
 		// check if the content frame contains the menu frame
 		if (findViewById(R.id.menu_frame) == null) {
 			// menu_frame nằm trên view của class Main.
@@ -89,15 +87,12 @@ public class MainActivity extends SlidingFragmentActivity implements
 					savedInstanceState, "mContent");
 		if (mContent == null)
 			mContent = new NewsFeedFragment();
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.content_frame, mContent).commit();
 
 		// set the Behind View Fragment
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.menu_frame, new MenuLeftFragment()).commit();
 
-		setSlidingActionBarEnabled(false);
-		
+		// setSlidingActionBarEnabled(false);
 
 		// customize the SlidingMenu
 		sm = getSlidingMenu();
@@ -107,6 +102,8 @@ public class MainActivity extends SlidingFragmentActivity implements
 		sm.setBehindScrollScale(0.25f);
 		sm.setFadeDegree(0.25f);
 
+		TextView txtUserName = (TextView) findViewById(R.id.txtName);
+		txtUserName.setText(Config.username);
 		// get View of Layout_user
 
 		LinearLayout layoutUser = (LinearLayout) findViewById(R.id.layoutUser);
@@ -115,8 +112,14 @@ public class MainActivity extends SlidingFragmentActivity implements
 			@Override
 			public void onClick(View arg0) {
 				Log.d("<MY DEBUG", "clicked Name");
-				Fragment newContent = new UserInfoFragment();
-				switchContent(newContent);
+				if (!Config.isLogin) {
+					Intent i = new Intent(Config.activity, LoginActivity.class);
+					startActivity(i);
+				} else {
+					Fragment newContent = new UserInfoFragment();
+					switchContent(newContent);
+				}
+
 			}
 		});
 
@@ -127,9 +130,13 @@ public class MainActivity extends SlidingFragmentActivity implements
 		if (mInternet.hasConnection(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), "Connected to Internet", 1)
 					.show();
+			// new reloadDataFromInternet().execute();
+
 		} else {
 			// load data from local database
+			// load data from local
 
+			// new reloadDataFromLocal().execute();
 		}
 
 	}// end onCreate
@@ -138,11 +145,9 @@ public class MainActivity extends SlidingFragmentActivity implements
 	// CLASS LOGICS
 	// ===============================================
 
-	
-
 	public void switchContent(final Fragment fragment) {
 		mContent = fragment;
-		fm = getSupportFragmentManager();	
+		fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, mContent);
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -193,17 +198,16 @@ public class MainActivity extends SlidingFragmentActivity implements
 		builder.setTitle("Thoát ứng dụng?");
 		builder.setIcon(R.drawable.ic_laucher);
 
-		builder.setPositiveButton("Éo", this);
-		builder.setNeutralButton("Ờ", this);
+		builder.setPositiveButton("Thoát", this);
+		builder.setNeutralButton("Hủy Bỏ", this);
 		return builder.create();
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
 		if (which == AlertDialog.BUTTON_POSITIVE) {
-			Toast.makeText(this, "cancel", 0).show();
-		} else if (which == AlertDialog.BUTTON_NEUTRAL) {
-			Toast.makeText(this, "ok", 0).show();
 			finish();
+
+		} else if (which == AlertDialog.BUTTON_NEUTRAL) {
 
 		}
 	}
@@ -218,7 +222,7 @@ public class MainActivity extends SlidingFragmentActivity implements
 			toggle();
 			return true;
 		case R.id.action_post:
-			//change status openCamraFirst to capture quickly
+			// change status openCamraFirst to capture quickly
 			Config.flagOpenCameraFirst = true;
 			// đăng bài
 			getSupportFragmentManager().beginTransaction()
@@ -226,8 +230,12 @@ public class MainActivity extends SlidingFragmentActivity implements
 					.commit();
 			return true;
 		case R.id.action_refresh:
-			toggle();
+			Toast.makeText(Config.activity, "Resfresh..", 0).show();
+			new JSONNewsFeedList();
 			// load lại tin mới.
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, new NewsFeedFragment())
+					.commit();
 			return true;
 
 		}
@@ -240,9 +248,45 @@ public class MainActivity extends SlidingFragmentActivity implements
 		inflater.inflate(R.menu.main, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	// ===============================================
-	// ACTION BAR
-	// ===============================================
-	
 
+	// ===============================================
+	// background to load data
+	// ===============================================
+	private class reloadDataFromLocal extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			// Show waiting progress dialog
+			new JSONNewsFeedList();
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, mContent).commit();
+			super.onPostExecute(result);
+		}
+
+	}
+
+	private class reloadDataFromInternet extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			// Show waiting progress dialog
+			new JSONNewsFeedList(true);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, mContent).commit();
+			super.onPostExecute(result);
+		}
+
+	}
 }

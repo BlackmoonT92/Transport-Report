@@ -1,6 +1,9 @@
 package com.blackmoon.egov;
 
-import com.blackmoon.dto.NewsFeedItem;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.blackmoon.dto.CName;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,16 +25,18 @@ public class NewsFeedFragmentDetail extends Fragment {
 	// VARIABLES
 	// ==========================================
 
-	NewsFeedItem item = null;
 	private View view = null;
+	private JSONObject JSONNews = new JSONObject();
+
+	private String image_url;
 
 	// contructor
 	public NewsFeedFragmentDetail() {
-		item = Config.itemClickedToViewDetail;
+		JSONNews = Config.itemClicked;
 	}
 
-	public NewsFeedFragmentDetail(NewsFeedItem itemClicked) {
-		item = itemClicked;
+	public NewsFeedFragmentDetail(JSONObject itemClicked) {
+		JSONNews = itemClicked;
 	}
 
 	@Override
@@ -39,6 +44,7 @@ public class NewsFeedFragmentDetail extends Fragment {
 		// TODO Auto-generated method stub
 		Config.activity.setTitle(R.string.news_feed_detail);
 		// Config.activity.getActionBar().setIcon(R.drawable.ic_laucher);
+
 		setRetainInstance(true);
 		super.onCreate(savedInstanceState);
 	}
@@ -50,7 +56,7 @@ public class NewsFeedFragmentDetail extends Fragment {
 		if (view == null) {
 			view = inflater.inflate(R.layout.fragment_newsfeed_detail,
 					container, false);
-			Log.d("FUCK", "view parent error");
+			Log.d("NewsFeed Detail", "view parent error");
 
 		} else {
 			// If we are returning from a configuration change:
@@ -79,51 +85,87 @@ public class NewsFeedFragmentDetail extends Fragment {
 				.findViewById(R.id.txtLocated);
 		ImageView imageNews = (ImageView) getView().findViewById(
 				R.id.imageAttach);
-		Button btnOpenMaps = (Button) getView().findViewById(R.id.btnLocated);
-
-		txtTitleNews.setText(item.getTitle());
-		txtDescNews.setText(item.getDesctionItem());
-		txtNewsContent.setText(item.getNewsContent());
-		txtLocated.setText(item.getAddress());
-
-		// temp link url
-
-		if (item.getThumb_url() != "") {
-			imageNews.setImageURI(Uri.parse(item.getThumb_url()));
-		} else {
-			imageNews.setImageResource(R.drawable.thum_url);
-		}
-
-		imageNews.setOnClickListener(new OnClickListener() {
+		final ImageView imageLike = (ImageView) getView().findViewById(
+				R.id.imageLike);
+		imageLike.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if (item.getThumb_url() != "") {
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					//intent.setData(Uri.fromFile(new File(item.getThumb_url())));
-					//intent.setType("image/jpeg");
-					//startActivity(intent); 
-					
-					
-				} 
+				imageLike.setImageResource(R.drawable.liked);
 
 			}
 		});
+		Button btnOpenMaps = (Button) getView().findViewById(R.id.btnLocated);
+		try {
 
+			txtTitleNews.setText(JSONNews.getString(CName.KEY_NEWSFEED_TILTE));
+			String descNews = "Gửi bởi: "
+					+ JSONNews.getString(CName.KEY_USER_NAME) + " - "
+					+ JSONNews.getString(CName.KEY_NEWSFEED_TIME) + " - Tại: "
+					+ JSONNews.getString(CName.KEY_DISTRICT_NAME);
+			txtDescNews.setText(descNews);
+			txtNewsContent.setText(JSONNews
+					.getString(CName.KEY_NEWSFEED_CONTENT));
+			txtLocated.setText(JSONNews.getString(CName.KEY_ADDRESS_DETAIL));
+
+			// temp link url
+			String uri;
+			uri = JSONNews.getString(CName.KEY_NEWSFEED_URL_IMAGES);
+			if (uri != null) {
+				imageNews.setImageURI(Uri.parse(uri));
+			} else {
+				imageNews.setImageResource(R.drawable.thumb_url);
+			}
+
+			imageNews.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// double click is like
+
+				}
+			});
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// setLick event
 		btnOpenMaps.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				String geoCode;
-				if(item.getLocation().getLongitude() == 0.0){
-					geoCode = "http://maps.google.com/maps?q="+item.getAddress();
-				}else{
-					geoCode = "geo:0,0?q="+item.getLocation().getLatitude() + "," + item.getLocation().getLongitude();
-				}
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoCode));
-				startActivity(intent);
+				String geoCode = null;
+				double lat;
+				double lon;
+				try {
 
+					lat = Double.parseDouble(JSONNews
+							.getString(CName.KEY_ADDRESS_COORDINATED_X));
+
+					lon = Double.parseDouble(JSONNews
+							.getString(CName.KEY_ADDRESS_COORDINATED_Y));
+					if (lat != 0.0) {
+						geoCode = "geo:0,0?q=" + lat + "," + lon;
+
+					} else {
+						geoCode = "http://maps.google.com/maps?q="
+								+ JSONNews.getString(CName.KEY_ADDRESS_DETAIL);
+					}
+
+				} catch (JSONException e) {
+					try {
+						geoCode = "http://maps.google.com/maps?q="
+								+ JSONNews.getString(CName.KEY_ADDRESS_DETAIL);
+
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				}
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri
+						.parse(geoCode));
+				startActivity(intent);
 			}
 		});
 

@@ -10,7 +10,9 @@ public class SettingFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+		
+		Config.activity.setTitle(R.string.setting);
+	//	Config.activity.getActionBar().setIcon(R.drawable.setting);
 		super.onCreate(savedInstanceState);
 	}
 

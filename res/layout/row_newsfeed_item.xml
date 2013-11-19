@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" 
         android:scaleType="centerCrop"
-        android:src="@drawable/thum_url" />
+        android:src="@drawable/thumb_url" />
 
     <RelativeLayout
         android:id="@+id/RelativeLayout1"
@@ -50,7 +50,7 @@
             android:paddingRight="3dp"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#457eec"
+            android:textColor="#e2f8e0"
             android:textSize="14dp" />
     </RelativeLayout>
 
