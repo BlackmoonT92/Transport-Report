@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,6 +31,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,6 +41,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -49,12 +57,16 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.blackmoon.dto.NewsFeedItem;
+import com.blackmoon.dto.CName;
+import com.blackmoon.dto.JSONNewsFeedList;
+import com.blackmoon.egov.R.menu;
 import com.blackmoon.features.GPSTracker;
+import com.blackmoon.features.MyInternet;
+import com.blackmoon.local_database.NewsDataSource;
 
-@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class PostNewsFragment extends Fragment implements
-		android.content.DialogInterface.OnClickListener {
+		android.content.DialogInterface.OnClickListener, OnClickListener {
 
 	// ===========================================
 	// VARIABLES
@@ -66,11 +78,9 @@ public class PostNewsFragment extends Fragment implements
 	private EditText edtPostTitle;
 	private EditText edtPostContent;
 	private EditText edtAddress;
-	private CheckBox checkBox;
 	private Spinner spinnerCity;
+	private Spinner spinnerDistrict;
 
-	private LinearLayout linearCheckBox2;
-	private LinearLayout linearCheckBox1;
 	// load city list from array.xml
 	String[] cityList;
 	String[] districList;
@@ -82,20 +92,25 @@ public class PostNewsFragment extends Fragment implements
 	// directory name to store captured images and videos
 	private static final String IMAGE_DIRECTORY_NAME = "BlackmoonT92";
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	Uri URI = Uri.parse(""); // path of image
+	Uri URI = null; // path of image
 	Bitmap bitmap_image;
 	int columnIndex;
 	String attachmentFile;
 
 	// postNewsFeed return a NewsFeedItem
-	private NewsFeedItem newsPosted = new NewsFeedItem();
+	private JSONObject JSONNews = new JSONObject();
 	String timeStamp;
 
 	// GPS
 	// GPSTracker class
 	private GPSTracker gps;
 	private Location location = new Location(LocationManager.NETWORK_PROVIDER);
-	Map<Integer, String> regions = new HashMap<Integer, String>();
+	private String city = null;
+	private String district = null;
+	private String address = null;
+
+	// database
+	NewsDataSource dataSource = new NewsDataSource(Config.activity);
 
 	// ===========================================
 	// CLASS DEFAULT
@@ -104,10 +119,11 @@ public class PostNewsFragment extends Fragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Config.activity.setTitle(R.string.post);
-		// Config.activity.getActionBar().setIcon(R.drawable.post);
 		if (Config.flagOpenCameraFirst) {
 			openCamera();
 		}
+		//MainActivity.showActionBarItem(false);
+
 		super.onCreate(savedInstanceState);
 
 	}
@@ -121,8 +137,10 @@ public class PostNewsFragment extends Fragment implements
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-
 		super.onActivityCreated(savedInstanceState);
+
+		// get location to get address and fill address to UI
+		getGPSLocation();
 
 		// set current fragment
 		Config.currentFragment = 2;
@@ -136,24 +154,9 @@ public class PostNewsFragment extends Fragment implements
 		edtPostTitle = (EditText) getView().findViewById(R.id.edtPostTitle);
 		edtPostContent = (EditText) getView().findViewById(R.id.edtPostContent);
 		edtAddress = (EditText) getView().findViewById(R.id.edtAddress);
-
-		btnPost.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// check district checkbox is selected
-				if (regions.size() == 0) {
-					Toast.makeText(Config.activity, "Bạn chưa chọn khu vực",
-							Toast.LENGTH_SHORT).show();
-				} else {
-					// send to server and store to local database
-					exportNewsFeed();
-					showPreviewPosted();
-				}
-
-			}
-
-		});
+		spinnerDistrict = (Spinner) getView()
+				.findViewById(R.id.spinnerDistrict);
+		btnPost.setOnClickListener(this);
 
 		btnAttach.setOnClickListener(new OnClickListener() {
 
@@ -184,8 +187,16 @@ public class PostNewsFragment extends Fragment implements
 
 			@Override
 			public void onClick(View v) {
-				getGPSLocation();
 
+				if (address == null) {
+					new GetAddressTask(Config.activity).execute(location);
+
+				} else {
+					if ("Binh Duong".equals(city)) {
+						spinnerCity.setSelection(2);
+					}
+					edtAddress.setText(address);
+				}
 			}
 		});
 
@@ -195,7 +206,8 @@ public class PostNewsFragment extends Fragment implements
 	// CLASS LOGICS
 	// ===========================================
 	private void showPreviewPosted() {
-		Fragment newContent = new NewsFeedFragmentDetail(newsPosted);
+		new reloadData().execute();
+		Fragment newContent = new NewsFeedFragmentDetail(JSONNews);
 		FragmentManager fm = getActivity().getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newContent);
@@ -206,27 +218,34 @@ public class PostNewsFragment extends Fragment implements
 
 	}
 
-	public NewsFeedItem exportNewsFeed() {
+	public JSONObject exportNewsFeed() {
 		// get current day
-
+		JSONObject JSONNewsPost = new JSONObject();
 		String timeFormat = new SimpleDateFormat("dd/MM/yyyy_HH:mm",
 				Locale.getDefault()).format(new Date());
 		// Toast.makeText(Config.activity, timeFormat, 0).show();
-		newsPosted.setTitle(edtPostTitle.getText().toString());
-		newsPosted.setNewsContent(edtPostContent.getText().toString());
-		newsPosted.setAddress(edtAddress.getText().toString());
-		newsPosted.setThumb_url(URI.toString());
-		newsPosted.setTimePosted(timeFormat);
-		newsPosted.setLocation(location);
-		// save all haskmap data from checkbox district
-		String[] value = new String[5];
-		int k = 0;
-		for (Entry<Integer, String> entry : regions.entrySet()) {
-			value[k++] = entry.getValue();
+
+		try {
+			JSONNewsPost.put(CName.KEY_NEWSFEED_TILTE, edtPostTitle.getText()
+					.toString());
+			JSONNewsPost.put(CName.KEY_NEWSFEED_CONTENT, edtPostContent
+					.getText().toString());
+			JSONNewsPost.put(CName.KEY_NEWSFEED_TIME, timeFormat);
+			JSONNewsPost.put(CName.KEY_NEWSFEED_URL_IMAGES, URI);
+			JSONNewsPost.put(CName.KEY_ADDRESS_DETAIL, edtAddress.getText()
+					.toString());
+			JSONNewsPost.put(CName.KEY_LATITUDE, location.getLatitude() + "");
+			JSONNewsPost.put(CName.KEY_LONGITUDE, location.getLongitude() + "");
+			JSONNewsPost.put(CName.KEY_USER_NAME, "BlackmoonT92");
+			JSONNewsPost.put(CName.KEY_DISTRICT_NAME, spinnerDistrict
+					.getSelectedItem().toString());
+			JSONNewsPost.put(CName.KEY_PROVINCE_NAME, spinnerCity
+					.getSelectedItem().toString());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		newsPosted.setTagRegion(value);
-		// Log.d("Regions", newsPosted.getTagRegion()[1]);
-		return newsPosted;
+		return JSONNewsPost;
 	}
 
 	public AlertDialog createAlertDialog() {
@@ -257,6 +276,10 @@ public class PostNewsFragment extends Fragment implements
 		// set image for preview
 
 	}
+
+	// ==============================================
+	// GET IMAGE FROM CAMERA OR GALLERY
+	// ==============================================
 
 	/**
 	 * Checking device has camera hardware or not
@@ -409,8 +432,13 @@ public class PostNewsFragment extends Fragment implements
 		}
 		imageAttach.setImageURI(URI);
 		imageAttach.setVisibility(View.VISIBLE);
-		getGPSLocation();
+		// get gps location but it's will slow to reposone
+		// getGPSLocation();
 	}
+
+	// ==============================================
+	// GET ADDRESS
+	// ==============================================
 
 	/**
 	 * Spinner to choose city and districts
@@ -436,22 +464,12 @@ public class PostNewsFragment extends Fragment implements
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
-				if (pos == 0) {
-					if (linearCheckBox1 != null) {
-						linearCheckBox1.removeAllViews();
-						linearCheckBox2.removeAllViews();
-					}
-
-				} else {
-					if (linearCheckBox1 != null) {
-						linearCheckBox1.removeAllViews();
-						linearCheckBox2.removeAllViews();
-					}
-
-					fillDataToSpinnerDistrict(cityList[pos]);
+				if (pos != 0) {
+					city = cityList[pos];
+					spinnerDistrict.setVisibility(View.VISIBLE);
+					fillDataToSpinnerDistrict(city);
 					// Toast.makeText(Config.activity, cityList[pos], 1).show();
 				}
-
 			}
 
 			@Override
@@ -464,64 +482,47 @@ public class PostNewsFragment extends Fragment implements
 
 	private void fillDataToSpinnerDistrict(String city) {
 
-		int resID = Config.activity.getResources().getIdentifier(city, "array",
-				Config.activity.getPackageName());
+		try {
 
-		// Spinner to choose district
-		districList = getResources().getStringArray(resID);
+			int resID = Config.activity.getResources().getIdentifier(city,
+					"array", Config.activity.getPackageName());
 
-		linearCheckBox1 = (LinearLayout) getView().findViewById(
-				R.id.linearDistric1);
-		linearCheckBox2 = (LinearLayout) getView().findViewById(
-				R.id.linearDistric2);
+			// Spinner to choose district
+			districList = getResources().getStringArray(resID);
+			ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(
+					Config.activity, android.R.layout.simple_spinner_item);
+			spinnerAdapter
+					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-		/**
-		 * create linked hash map for store item you can get value from database
-		 * or server also
-		 */
-		int k = (districList.length + 1) / 2;
-		for (int i = 0; i < districList.length; i++) {
-			checkBox = new CheckBox(Config.activity);
-			checkBox.setId(i);
-			checkBox.setText(districList[i]);
-			checkBox.setOnClickListener(getOnClickDoSomething(checkBox));
-			if (i < k) {
-				linearCheckBox1.addView(checkBox);
-			} else {
-				linearCheckBox2.addView(checkBox);
+			for (int i = 0; i < districList.length; i++) {
+				spinnerAdapter.add(districList[i]);
 			}
 
+			spinnerDistrict.setAdapter(spinnerAdapter);
+			spinnerDistrict
+					.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+						@Override
+						public void onItemSelected(AdapterView<?> parent,
+								View view, int pos, long id) {
+							district = districList[pos];
+						}
+
+						@Override
+						public void onNothingSelected(AdapterView<?> arg0) {
+							// TODO Auto-generated method stub
+
+						}
+					});
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-
-	}
-
-	View.OnClickListener getOnClickDoSomething(final Button button) {
-		return new View.OnClickListener() {
-			public void onClick(View v) {
-				// Toast.makeText(Config.activity,
-				// "Khu Vực" + button.getText().toString(), 0).show();
-
-				String temp = regions.get(button.getId());
-				if (temp != null) {
-					regions.remove(button.getId());
-				} else if (regions.size() < 5) {
-					regions.put(button.getId(), button.getText().toString());
-				} else {
-					Toast.makeText(Config.activity,
-							"Bạn đang chọn quá nhiều khu vực",
-							Toast.LENGTH_SHORT).show();
-					spinnerCity.setSelection(0);
-					regions.clear();
-				}
-
-			}
-		};
 	}
 
 	// ==========================================================
 	// GPS
 	// ==========================================================
-	public Location getGPSLocation() {
+	public void getGPSLocation() {
 
 		// create class object
 		gps = new GPSTracker(Config.activity);
@@ -534,44 +535,157 @@ public class PostNewsFragment extends Fragment implements
 
 			location.setLongitude(longitude);
 			location.setLatitude(latitude);
-			// \n is for new line
-			/*Toast.makeText(
-					Config.activity,
-					"Your Location is - \nLat: " + latitude + "\nLong: "
-							+ longitude, Toast.LENGTH_LONG).show();*/
-			String address = getAddressFromLocation(location);
-			edtAddress.setText(address);
-			return location;
+			Toast.makeText(Config.activity,
+					location.getLatitude() + " , " + location.getLongitude(), 0)
+					.show();
+			// get address from location
+			new GetAddressTask(Config.activity).execute(location);
+
 		} else {
 			// can't get location
 			// GPS or Network is not enabled
 			// Ask user to enable GPS/network in settings
 			gps.showSettingsAlert();
+
+		}
+	}
+
+	/**
+	 * A subclass of AsyncTask that calls getFromLocation() in the background.
+	 * The class definition has these generic types: Location - A Location
+	 * object containing the current location. Void - indicates that progress
+	 * units are not used String - An address passed to onPostExecute()
+	 */
+	private class GetAddressTask extends AsyncTask<Location, Void, String> {
+		Context mContext;
+
+		public GetAddressTask(Context context) {
+			super();
+			mContext = context;
+		}
+
+		/**
+		 * Get a Geocoder instance, get the latitude and longitude look up the
+		 * address, and return it
+		 * 
+		 * @params params One or more Location objects
+		 * @return A string containing the address of the current location, or
+		 *         an empty string if no address can be found, or an error
+		 *         message
+		 */
+		@Override
+		protected String doInBackground(Location... params) {
+			Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+			// Get the current location from the input parameter list
+			Location loc = params[0];
+			// Create a list to contain the result address
+			List<Address> addresses = null;
+			try {
+				/*
+				 * Return 1 address.
+				 */
+				addresses = geocoder.getFromLocation(loc.getLatitude(),
+						loc.getLongitude(), 1);
+			} catch (IOException e1) {
+				Log.e("LocationSampleActivity",
+						"IO Exception in getFromLocation()");
+				e1.printStackTrace();
+				return null;
+			} catch (IllegalArgumentException e2) {
+				// Error message to post in the log
+				String errorString = "Illegal arguments "
+						+ Double.toString(loc.getLatitude()) + " , "
+						+ Double.toString(loc.getLongitude())
+						+ " passed to address service";
+				Log.e("LocationSampleActivity", errorString);
+				e2.printStackTrace();
+				return errorString;
+			}
+			// If the reverse geocode returned an address
+			if (addresses != null && addresses.size() > 0) {
+				// Get the first address
+				Address address = addresses.get(0);
+				/*
+				 * Format the first line of address (if available), city, and
+				 * country name.
+				 */
+				city = address.getAdminArea();
+				district = address.getLocality();
+				String addressText = String.format(
+						"%s, %s, %s, %s, %s",
+						// If there's a street address, add it
+						address.getMaxAddressLineIndex() > 0 ? address
+								.getAddressLine(0) : "",
+						// phường xã
+						address.getSubLocality(),
+						// Locality is usually a city
+						district, city,
+						// The country of the address
+						address.getCountryName());
+
+				// Return the text
+				return addressText;
+			} else {
+				return null;
+			}
+
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			address = result;
+			super.onPostExecute(result);
+		}
+	}
+
+	private class reloadData extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			new JSONNewsFeedList();
 			return null;
 		}
+
 	}
 
-	public String getAddressFromLocation(Location location) {
-		String value = null;
-		try {
-			Geocoder geocoder;
-			List<Address> addresses;
-			geocoder = new Geocoder(Config.activity, Locale.getDefault());
-			Toast.makeText(Config.activity, geocoder.isPresent() + "", 0).show();
-			addresses = geocoder.getFromLocation(location.getLatitude(),
-					location.getLatitude(), 1);
+	@Override
+	public void onClick(View v) {
+		// check district checkbox is selected
+		if (spinnerCity.getSelectedItemPosition() == 0) {
+			Toast.makeText(Config.activity, "Bạn chưa chọn khu vực",
+					Toast.LENGTH_SHORT).show();
+		} else {
+			// send to server and store to local database
+			JSONNews = exportNewsFeed();
+			if(JSONNews != null){
+				
+			}
+			Log.i("JSON POST", JSONNews.toString());
+			dataSource.open();
+			dataSource.createNewsFeed(JSONNews);
+			showPreviewPosted();
+			if (!MyInternet.hasConnection(Config.activity)) {
+				Toast.makeText(
+						Config.activity,
+						"Tin của bạn sẽ được đăng tự động sau khi kết nối mạng",
+						1).show();
+				// store to database and set flag not post
 
-			String address = addresses.get(0).getAddressLine(0);
-			
-			String city = addresses.get(0).getAddressLine(1);
-			String country = addresses.get(0).getAddressLine(2);
-			 value = address + ", " + city + ", " + country;
+			} else {
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				Log.i("JSON POST", JSONNews.toString());
+
+			}
+			dataSource.close();
+
 		}
 
-		return value;
 	}
+
+	@Override
+	public void onDestroy() {
+		//MainActivity.showActionBarItem(true);
+		super.onDestroy();
+	}
+
 }

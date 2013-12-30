@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.blackmoon.custom_list_view.MenuListAdapter;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
@@ -80,7 +82,8 @@ public class MenuLeftFragment extends ListFragment {
 			newContent = new AboutFragment();
 			break;
 		case 7:
-			newContent = new LoginFragment();
+			Intent i = new Intent(Config.activity, LoginActivity.class);
+			startActivity(i);
 			break;
 		}
 
@@ -88,6 +91,7 @@ public class MenuLeftFragment extends ListFragment {
 			switchFragment(newContent);
 
 	}
+	
 
 	// the meat of switching the above framgent
 	public void switchFragment(Fragment fragment) {

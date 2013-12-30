@@ -46,7 +46,8 @@
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/RelativeLayout1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -55,10 +56,21 @@
                 <ImageView
                     android:id="@+id/imageAttach"
                     android:layout_width="fill_parent"
-                    android:layout_height="250dp"
+                    android:layout_height="240dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/thum_url" />
-            </LinearLayout>
+                    android:src="@drawable/thumb_url" />
+
+                <ImageView
+                    android:id="@+id/imageLike"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/imageAttach"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/like" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -76,7 +88,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="@drawable/image_bg"
                 android:orientation="horizontal"
                 android:paddingBottom="5dp" >
@@ -86,29 +98,28 @@
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Maps" 
-                    />
+                    android:text="Maps" />
 
                 <TextView
                     android:id="@+id/txtLocated"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
                     android:text=" ngã 3 võ văn ngân, thủ đức"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical" 
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/txtSoDien"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LIKE -- SHARE -- FOLLOW" />
+                    android:text="SHARE" />
 
                 <TextView
                     android:id="@+id/txtNgayDen"
@@ -116,9 +127,6 @@
                     android:layout_height="wrap_content"
                     android:text="COMMENT..................................................................................................................................................................................................................................................................................................................................................................................." />
             </LinearLayout>
-
-      
-
         </LinearLayout>
     </ScrollView>
 

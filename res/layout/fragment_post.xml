@@ -9,7 +9,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingLeft="4dp"
-        android:paddingRight="4dp" >
+        android:paddingRight="4dp" 
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,7 +31,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/border"
             android:orientation="vertical"
+            android:paddingBottom="5dp"
             android:paddingTop="5dp" >
 
             <EditText
@@ -51,40 +54,53 @@
             android:background="@drawable/border"
             android:orientation="horizontal"
             android:paddingBottom="10dp"
-            android:paddingTop="10dp" 
-            >
+            android:paddingTop="10dp" >
 
             <EditText
                 android:id="@+id/edtAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:ems="10"
                 android:hint="@string/post_addess"
-                android:inputType="textPostalAddress" 
-                android:layout_weight="1"/>
+                android:inputType="textPostalAddress" />
 
             <Button
                 android:id="@+id/btnGPS"
                 android:layout_width="26dp"
-                android:layout_height="38dp"                 
-                android:background="@drawable/gps_icon"/>
-
+                android:layout_height="38dp"
+                android:background="@drawable/gps_icon" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/border"
             android:orientation="horizontal"
             android:paddingBottom="5dp"
             android:paddingTop="5dp" >
 
             <Spinner
                 android:id="@+id/spinnerCity"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4px"
+                android:layout_weight="1"
                 android:scrollbars="vertical" >
             </Spinner>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="10dp"
+                android:layout_height="wrap_content"
+                 />
+
+            <Spinner
+                android:id="@+id/spinnerDistrict"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
@@ -119,7 +135,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="170dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/thum_url"
+                android:src="@drawable/thumb_url"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -137,7 +153,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/list_selector"
                 android:text="@string/post" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="10dp"
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/btnAttach"
@@ -145,6 +167,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/list_selector"
                 android:text="@string/attach_photo" />
         </LinearLayout>
     </LinearLayout>

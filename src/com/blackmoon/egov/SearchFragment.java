@@ -13,7 +13,7 @@ public class SearchFragment extends Fragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Config.activity.setTitle(R.string.search);
-		//Config.activity.getActionBar().setIcon(R.drawable.search);
+	//	Config.activity.getActionBar().setIcon(R.drawable.search);
 		super.onCreate(savedInstanceState);
 	}
 	

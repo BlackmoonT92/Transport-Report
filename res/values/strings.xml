@@ -7,8 +7,9 @@
     <string name="news_feed">Tin Mới</string>
     <string name="follows">Yêu Thích</string>
     <string name="history">Lịch Sử</string>
-    <string name="search">Search</string>
+    <string name="search">Tìm kiếm</string>
     <string name="about">Thông Tin</string>
+    <string name="setting">Cài Đặt</string>
     <string name="logout">Đăng Xuất</string>
     <string name="login">Đăng Nhập</string>
     <string name="user_info">Trang Cá Nhân</string>
@@ -21,8 +22,10 @@
     <string name="post_addess">Địa chỉ xảy ra sự cố</string>
     <string name="edit">Chỉnh Sửa</string>
     <string name="preview">Xem Trước</string>
-   
-   
-    
+    <string name="pull_to_refresh_pull_label">Kéo xuống để làm mới...</string>
+    <string name="pull_to_refresh_release_label">Thả ra để làm mới...</string>
+    <string name="pull_to_refresh_refreshing_label">Đang Tải dữ liệu...</string>
+    <string name="pull_to_refresh_tap_label">Nhấn để làm mới...</string>
+    <string name="load_more_post">Tải Thêm Dữ Liệu...</string>
 
 </resources>
