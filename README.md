@@ -5,9 +5,7 @@ VNReport
 GVHD:		PGS.TS VŨ THANH NGUYÊN
 Sinh viên thực hiện:
 1.	Trần Lê Tuấn Anh		10520040	
-2.	
 2.	Chu Quang Thái		10520048‏
-3.	
 3.	Phan Văn Tâm			10520061
 
 
